@@ -15,4 +15,9 @@ class CityCell: UITableViewCell {
     @IBOutlet weak var iconView: UIImageView?
     @IBOutlet weak var weather: UILabel?
     @IBOutlet weak var name: UILabel?
+    @IBOutlet weak var weatherCondition: UILabel?
+
+    override func prepareForReuse() {
+        self.name?.text = ""
+    }
 }

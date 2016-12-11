@@ -14,8 +14,6 @@ class Weather {
     var description:String = ""
     var iconId : String = ""
     
-    
-    
     init(with dict:NSDictionary) {
         if let id = dict["id"] as? Int {
             self.id = id
@@ -26,7 +24,7 @@ class Weather {
         if let description = dict["description"] as? String {
             self.description = description
         }
-        if let iconId  = dict["iconId"] as? String {
+        if let iconId  = dict["icon"] as? String {
             self.iconId = iconId
         }
     }

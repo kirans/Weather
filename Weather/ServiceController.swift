@@ -48,6 +48,25 @@ class ServiceController {
         task.resume()
     }
     
+    func downloadWeatherIcon(with code:String , completion:@escaping(_ image:UIImage?, _ error:Error?) -> Void)  {
+        let urlSrtring = "http://openweathermap.org/img/w/\(code)"+".png"
+        guard let url = URL(string:urlSrtring) else {
+            completion(nil, nil)
+            return
+        }
+        
+        let urlRequest = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.returnCacheDataElseLoad, timeoutInterval: 1.0)
+        let task = sharedSession.downloadTask(with: urlRequest) { (location, response, error) in
+            if let fileLocation = location, let fileData = try? Data(contentsOf: fileLocation) {
+                if let image = UIImage(data: fileData) {
+                    DispatchQueue.main.async {
+                        completion(image, nil)
+                    }
+                }
+            }
+        }
+        task.resume()
+    }
     
     
     func handleError() {

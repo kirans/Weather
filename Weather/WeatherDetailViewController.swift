@@ -1,5 +1,5 @@
 //
-//  SearchResultViewController.swift
+//  WeatherDetailViewController.swift
 //  Weather
 //
 //  Created by Kiran Kumar Sanka on 12/10/16.
@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class SearchResultViewController: UIViewController {
+class WeatherDetailViewController: UIViewController {
     var city:City?
     
 }
