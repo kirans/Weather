@@ -45,8 +45,15 @@ class SearchController: UIViewController {
     //Adds new city and syncs to defaults
     func addCity(city:City, update:Bool = false) {
         DispatchQueue.main.async { [weak self] in
-            if let filterItems = self?.recentItems.filter({$0.name == city.name}), filterItems.count == 0 {
-                self?.recentItems.insert(city, at: 0)
+            if let filterItems = self?.recentItems.filter({$0.name == city.name}) {
+                if filterItems.count == 0 {
+                    self?.recentItems.insert(city, at: 0)
+                } else {
+                    if let first = filterItems.first, let remainingItems =  self?.recentItems.filter({$0.name != city.name}) {
+                        self?.recentItems = remainingItems
+                        self?.recentItems.insert(first, at: 0)
+                    }
+                }
             }
             if update == true {
                 self?.searchItem = city
