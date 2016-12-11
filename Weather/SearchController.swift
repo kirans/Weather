@@ -41,6 +41,68 @@ class SearchController: UIViewController {
         self.navigationController?.navigationBar.isHidden = true
     }
     
+    //Adds new city and syncs to defaults
+    func addCity(city:City, update:Bool = false) {
+        DispatchQueue.main.async { [weak self] in
+            if let filterItems = self?.recentItems.filter({$0.name == city.name}), filterItems.count == 0 {
+                self?.recentItems.insert(city, at: 0)
+            }
+            if update == true {
+                self?.searchItem = city
+                self?.updateRecentItems()
+            }
+            self?.tableView?.reloadData()
+        }
+    }
+
+    //Configures the City Cell
+    func configure(cell:CityCell, at indexPath:IndexPath) {
+        var cityItem:City?
+        if let city = searchItem, indexPath.section == 0 {
+            cityItem = city
+            cell.name?.text = cityItem?.name
+            cell.accessoryType = .none
+            cell.backgroundColor = UIColor.blue
+            self.updateCurrentSearch(cell: cell)
+        } else {
+            cityItem = recentItems[indexPath.row]
+            cell.accessoryType = .disclosureIndicator
+            cell.backgroundColor = UIColor.white
+            
+        }
+        cell.name?.text = cityItem?.name
+        cell.weather?.text = cityItem?.temperature?.degrees
+        cell.weatherCondition?.text = cityItem?.weatherDescription
+        cell.messageIndicator?.hidesWhenStopped = true
+        
+        if let weather = cityItem?.weathers.first, weather.iconId.characters.count > 0 {
+            ServiceController.sharedInstance.downloadWeatherIcon(with: weather.iconId, completion: { (image, error) in
+                if error == nil {
+                    cell.iconView?.image = image
+                }
+            })
+        }
+    }
+
+    //Loads recentsSearchItems from userDefaults
+    func loadRecentItems() {
+        guard  let recentSearchItems = UserDefaults.standard.array(forKey: "RecentSearchItems") as? [String] else {
+            return
+        }
+        self.recentItems.removeAll()
+        for each in recentSearchItems {
+            do {
+                try ServiceController.sharedInstance.weather(byCity: each, completion: { (searchCity, error) in
+                    if let city = searchCity {
+                        self.addCity(city: city)
+                    }
+                })
+            } catch {
+                print("No Data")
+            }
+        }
+    }
+
     //Performs Search for the entry
     func performSearch(searchTerm:String) {
         if searchTerm.characters.count == 0 {
@@ -69,80 +131,6 @@ class SearchController: UIViewController {
         }
     }
     
-    
-    //Configures the City Cell
-    func configure(cell:CityCell, at indexPath:IndexPath) {
-        var cityItem:City?
-        if let city = searchItem, indexPath.section == 0 {
-            cityItem = city
-            cell.name?.text = cityItem?.name
-            cell.accessoryType = .none
-            cell.backgroundColor = UIColor.blue
-            self.updateCurrentSearch(cell: cell)
-        } else {
-            cityItem = recentItems[indexPath.row]
-            cell.accessoryType = .disclosureIndicator
-            cell.backgroundColor = UIColor.white
-
-        }
-        cell.name?.text = cityItem?.name
-        cell.weather?.text = cityItem?.temperature?.degrees
-        cell.weatherCondition?.text = cityItem?.weatherDescription
-        cell.messageIndicator?.hidesWhenStopped = true
-
-        if let weather = cityItem?.weathers.first, weather.iconId.characters.count > 0 {
-            ServiceController.sharedInstance.downloadWeatherIcon(with: weather.iconId, completion: { (image, error) in
-                if error == nil {
-                    cell.iconView?.image = image
-                }
-            })
-        }
-    }
-    
-    //Syncs recentsSearchItems to defaults
-    func updateRecentItems() {
-        var searchItems = [String]()
-        for each in self.recentItems {
-            searchItems.append(each.name)
-        }
-        UserDefaults.standard.setValue(searchItems, forKey: "RecentSearchItems")
-        UserDefaults.standard.synchronize()
-    }
-    
-    //Loads recentsSearchItems from userDefaults
-    func loadRecentItems() {
-        guard  let recentSearchItems = UserDefaults.standard.array(forKey: "RecentSearchItems") as? [String] else {
-            return
-        }
-        self.recentItems.removeAll()
-        for each in recentSearchItems {
-            do {
-                try ServiceController.sharedInstance.weather(byCity: each, completion: { (searchCity, error) in
-                    if let city = searchCity {
-                        self.addCity(city: city)
-                    }
-                })
-            } catch {
-                print("No Data")
-            }
-        }
-    }
-    
-    //Adds new city and syncs to defaults
-    func addCity(city:City, update:Bool = false) {
-        DispatchQueue.main.async { [weak self] in
-            if let filterItems = self?.recentItems.filter({$0.name == city.name}), filterItems.count == 0 {
-                self?.recentItems.insert(city, at: 0)
-            }
-            if update == true {
-                self?.searchItem = city
-                self?.updateRecentItems()
-            }
-            self?.tableView?.reloadData()
-        }
-    }
-    
-    
     //Based on search progress the current cell gets update
     func updateCurrentSearch(cell:CityCell) {
         guard let city = searchItem else {
@@ -170,7 +158,16 @@ class SearchController: UIViewController {
             }
         }
     }
-    
+
+    //Syncs recentsSearchItems to defaults
+    func updateRecentItems() {
+        var searchItems = [String]()
+        for each in self.recentItems {
+            searchItems.append(each.name)
+        }
+        UserDefaults.standard.setValue(searchItems, forKey: "RecentSearchItems")
+        UserDefaults.standard.synchronize()
+    }
 }
 
 

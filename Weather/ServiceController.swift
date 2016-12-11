@@ -84,8 +84,6 @@ class ServiceController {
         task.resume()
     }
     
-    //TODO Handle Multiple error types if time permits
-
     //Handles Weather API Error
     func handleError(dict:NSDictionary) -> Error? {
         var error:Error? = nil

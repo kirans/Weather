@@ -30,6 +30,7 @@ class WeatherDetailViewController: UIViewController {
         self.navigationController?.navigationBar.isHidden = false
     }
     
+    //Updates view with city data
     func updateView() {
         guard  let cityItem = city else {
             return
