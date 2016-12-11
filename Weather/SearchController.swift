@@ -27,8 +27,8 @@ class SearchController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView?.tableFooterView = UIView()
         self.loadRecentItems()
-        // Do any additional setup after loading the view, typically from a nib.
     }
 
     override func didReceiveMemoryWarning() {
@@ -41,8 +41,7 @@ class SearchController: UIViewController {
         self.navigationController?.navigationBar.isHidden = true
     }
     
-    
-    //Performs Search for then entry
+    //Performs Search for the entry
     func performSearch(searchTerm:String) {
         if searchTerm.characters.count == 0 {
             return
@@ -55,7 +54,7 @@ class SearchController: UIViewController {
         do {
             try ServiceController.sharedInstance.weather(byCity: searchTerm, completion: { (searchCity, error) in
                 self.searchInProgress = false
-                if let err = error  as? APIError {
+                if let err = error  {
                     self.searchItem?.error = err
                     return
                 }
@@ -65,7 +64,6 @@ class SearchController: UIViewController {
                 }
             })
         } catch {
-            //TODO: Handle error
             print("No Data")
             self.searchInProgress = false
         }
@@ -157,9 +155,13 @@ class SearchController: UIViewController {
                     cell.mode = .Loading
                     cell.messageLabel?.text = "Searching City \(city.name)"
                     cell.backgroundColor = UIColor.white
-                } else if let err = self.searchItem?.error as? APIError {
+                } else if let err = self.searchItem?.error  {
                     cell.mode = .Error
-                    cell.messageLabel?.text = err.value() + " " + city.name
+                    if let apiError = err as? APIError {
+                        cell.messageLabel?.text = apiError.value() + " " + city.name
+                    } else {
+                        cell.messageLabel?.text = err.localizedDescription
+                    }
                     cell.backgroundColor = UIColor.white
                 } else {
                     cell.mode = .Normal
@@ -224,7 +226,6 @@ extension SearchController:UITableViewDataSource, UITableViewDelegate {
             }
             tableView.deselectRow(at: indexPath, animated: true)
         }
-        //TODO
     }
     
 }
@@ -232,10 +233,6 @@ extension SearchController:UITableViewDataSource, UITableViewDelegate {
 //MARK:SearchBar Delegate
 
 extension SearchController: UISearchBarDelegate {
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
-    }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         if let term = searchBar.text {
