@@ -61,6 +61,9 @@ class SearchController: UIViewController {
         if let city = searchItem, indexPath.section == 0 {
             cityItem = city
             cell.name?.text = cityItem?.name
+            if let country = cityItem?.sys?.country, let name =  cityItem?.name {
+                cell.name?.text = name + country
+            }
             cell.accessoryType = .none
             cell.backgroundColor = UIColor.blue
             self.updateCurrentSearch(cell: cell)
