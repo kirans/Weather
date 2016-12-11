@@ -13,7 +13,7 @@
         <!--Navigation Controller-->
         <scene sceneID="lEm-fJ-He6">
             <objects>
-                <navigationController navigationBarHidden="YES" id="TGZ-5Z-eEJ" sceneMemberID="viewController">
+                <navigationController id="TGZ-5Z-eEJ" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="A3l-ua-aqA">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -308,6 +308,14 @@
                         </constraints>
                     </view>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
+                    <connections>
+                        <outlet property="descriptionLabel" destination="xZW-Qb-dn2" id="6hf-8M-7X9"/>
+                        <outlet property="descriptionsLabel" destination="qSz-MM-iwq" id="jAg-L5-6qS"/>
+                        <outlet property="humidityLabel" destination="M30-ar-TA4" id="avo-iO-4TA"/>
+                        <outlet property="nameLabel" destination="9Jn-ZW-mnr" id="k8Q-Xu-aXv"/>
+                        <outlet property="pressureLabel" destination="peC-Wg-2gg" id="JuU-pF-zjs"/>
+                        <outlet property="weatherLabel" destination="vME-uQ-X5c" id="nhz-IC-6bG"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="O3S-wh-Qpn" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

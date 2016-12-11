@@ -156,11 +156,14 @@ class SearchController: UIViewController {
                 if self.searchInProgress == true {
                     cell.mode = .Loading
                     cell.messageLabel?.text = "Searching City \(city.name)"
+                    cell.backgroundColor = UIColor.white
                 } else if let err = self.searchItem?.error as? APIError {
                     cell.mode = .Error
                     cell.messageLabel?.text = err.value() + " " + city.name
+                    cell.backgroundColor = UIColor.white
                 } else {
                     cell.mode = .Normal
+                    cell.backgroundColor = UIColor.blue
                 }
             }
         }
@@ -210,11 +213,20 @@ extension SearchController:UITableViewDataSource, UITableViewDelegate {
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if let viewController = self.storyboard?.instantiateViewController(withIdentifier: "weatherDetailViewController") as? WeatherDetailViewController{
-            self.navigationController?.pushViewController(viewController, animated: true)
+        if let viewController = self.storyboard?.instantiateViewController(withIdentifier: "weatherDetailViewController") as? WeatherDetailViewController {
+            if let city = searchItem, indexPath.section == 0, city.isDummy == false {
+                viewController.city = city
+            } else if indexPath.section == 1 {
+                viewController.city = recentItems[indexPath.row]
+            }
+            if viewController.city != nil {
+                self.navigationController?.pushViewController(viewController, animated: true)
+            }
+            tableView.deselectRow(at: indexPath, animated: true)
         }
         //TODO
     }
+    
 }
 
 //MARK:SearchBar Delegate
