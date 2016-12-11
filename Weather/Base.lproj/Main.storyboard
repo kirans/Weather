@@ -14,8 +14,7 @@
         <scene sceneID="lEm-fJ-He6">
             <objects>
                 <navigationController navigationBarHidden="YES" id="TGZ-5Z-eEJ" sceneMemberID="viewController">
-                    <nil key="simulatedTopBarMetrics"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="A3l-ua-aqA">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="A3l-ua-aqA">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
@@ -77,7 +76,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="22" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VpT-5K-ffz">
-                                                    <rect key="frame" x="64" y="45" width="42" height="43"/>
+                                                    <rect key="frame" x="64" y="45" width="42" height="42"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="36"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -91,22 +90,57 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="q9X-BH-26L" userLabel="LoadingView">
+                                                    <rect key="frame" x="0.0" y="0.0" width="375" height="104"/>
+                                                    <subviews>
+                                                        <stackView opaque="NO" contentMode="scaleToFill" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="mLX-Iw-EsB">
+                                                            <rect key="frame" x="8" y="27" width="359" height="50"/>
+                                                            <subviews>
+                                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="vdh-6E-vtD">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="20" height="50"/>
+                                                                </activityIndicatorView>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Searching City London" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aUx-8b-XMl">
+                                                                    <rect key="frame" x="30" y="0.0" width="329" height="50"/>
+                                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                    <nil key="textColor"/>
+                                                                    <nil key="highlightedColor"/>
+                                                                </label>
+                                                            </subviews>
+                                                            <constraints>
+                                                                <constraint firstAttribute="height" constant="50" id="mwZ-IW-bO1"/>
+                                                            </constraints>
+                                                        </stackView>
+                                                    </subviews>
+                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="trailing" secondItem="mLX-Iw-EsB" secondAttribute="trailing" constant="8" id="GBd-9n-P9b"/>
+                                                        <constraint firstItem="mLX-Iw-EsB" firstAttribute="centerY" secondItem="q9X-BH-26L" secondAttribute="centerY" id="c3d-wf-gSQ"/>
+                                                        <constraint firstItem="mLX-Iw-EsB" firstAttribute="leading" secondItem="q9X-BH-26L" secondAttribute="leading" constant="8" id="d8k-Rw-IBA"/>
+                                                    </constraints>
+                                                </view>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="q9X-BH-26L" secondAttribute="trailing" id="5GC-Ws-DbM"/>
                                                 <constraint firstItem="VpT-5K-ffz" firstAttribute="leading" secondItem="DIk-pp-aJ2" secondAttribute="trailing" constant="8" id="66h-Lm-IdJ"/>
+                                                <constraint firstItem="q9X-BH-26L" firstAttribute="leading" secondItem="etR-AC-ma0" secondAttribute="leading" id="6Sz-hf-T2W"/>
                                                 <constraint firstItem="DIk-pp-aJ2" firstAttribute="centerY" secondItem="etR-AC-ma0" secondAttribute="centerY" id="I0q-OK-X9B"/>
                                                 <constraint firstItem="3Xy-JH-Bgd" firstAttribute="leading" secondItem="VpT-5K-ffz" secondAttribute="trailing" constant="8" id="IeP-hN-UkX"/>
                                                 <constraint firstItem="VpT-5K-ffz" firstAttribute="top" secondItem="R2m-pv-BLJ" secondAttribute="bottom" constant="8" id="O43-Sf-VOu"/>
+                                                <constraint firstItem="q9X-BH-26L" firstAttribute="top" secondItem="etR-AC-ma0" secondAttribute="top" id="RFp-q6-F9r"/>
                                                 <constraint firstAttribute="bottomMargin" secondItem="VpT-5K-ffz" secondAttribute="bottom" constant="8" id="RwY-UN-7fU"/>
                                                 <constraint firstItem="DIk-pp-aJ2" firstAttribute="leading" secondItem="etR-AC-ma0" secondAttribute="leadingMargin" constant="8" id="Vre-V6-YEC"/>
                                                 <constraint firstItem="R2m-pv-BLJ" firstAttribute="top" secondItem="etR-AC-ma0" secondAttribute="topMargin" constant="8" id="XN9-14-Kkg"/>
                                                 <constraint firstItem="3Xy-JH-Bgd" firstAttribute="top" secondItem="R2m-pv-BLJ" secondAttribute="bottom" constant="19" id="hqM-SY-mUF"/>
+                                                <constraint firstAttribute="bottom" secondItem="q9X-BH-26L" secondAttribute="bottom" id="r15-Og-Vut"/>
                                                 <constraint firstItem="R2m-pv-BLJ" firstAttribute="leading" secondItem="DIk-pp-aJ2" secondAttribute="trailing" constant="8" id="x8S-r4-R5C"/>
                                                 <constraint firstAttribute="trailingMargin" secondItem="R2m-pv-BLJ" secondAttribute="trailing" id="yyx-hk-NSR"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
                                             <outlet property="iconView" destination="DIk-pp-aJ2" id="Tqs-Dj-dmc"/>
+                                            <outlet property="messageIndicator" destination="vdh-6E-vtD" id="iXT-ZX-kI9"/>
+                                            <outlet property="messageLabel" destination="aUx-8b-XMl" id="LfU-I3-CPp"/>
+                                            <outlet property="messageView" destination="q9X-BH-26L" id="7YU-d8-XYg"/>
                                             <outlet property="name" destination="R2m-pv-BLJ" id="Pny-w1-Y1Q"/>
                                             <outlet property="weather" destination="VpT-5K-ffz" id="jok-FL-uZt"/>
                                             <outlet property="weatherCondition" destination="3Xy-JH-Bgd" id="P4x-Tq-mG1"/>
@@ -136,15 +170,6 @@
                         <outlet property="tableView" destination="7uA-VZ-Cuk" id="aaV-Dh-fx0"/>
                     </connections>
                 </viewController>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="76U-Mm-LVX">
-                    <rect key="frame" x="0.0" y="0.0" width="42" height="21"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="21" id="wVY-3D-wei"/>
-                    </constraints>
-                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                    <nil key="textColor"/>
-                    <nil key="highlightedColor"/>
-                </label>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-120.8" y="38.23088455772114"/>

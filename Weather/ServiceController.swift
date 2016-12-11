@@ -11,36 +11,46 @@ import UIKit
 
 let weatherAPIKey = "c26f95148c9fd553ee0cb06a05de46c1"
 
+enum APIError : Error {
+    
+    case WeatherAPI(String)
+    
+    func value() -> String {
+        switch self {
+        case let .WeatherAPI(value):
+            return value
+        }
+    }
+}
+
 class ServiceController {
     
     static let sharedInstance = ServiceController()
     let sharedSession = URLSession.shared
     var serviceBaseURL:String = "http://api.openweathermap.org/data/2.5/weather"
     
-//    lazy var serviceBaseURL:String? = {
-//        if let url = UserDefaults.standard.value(forKey: "WeatherServiceURL") as? String {
-//            return url
-//        }
-//        return nil
-//    }()
-    
-    //TODO: Documentation
+    //Downloads weather for a city
     func weather(byCity city:String, completion:@escaping (_ city:City?, _ error:Error?)->Void) throws {
         guard let url = URL(string: serviceBaseURL+"?q="+city+"&APPID=\(weatherAPIKey)") else {
             return
         }
-        let task = sharedSession.dataTask(with: url) { (data, response, error) in
+        let task = sharedSession.dataTask(with: url) { (data, response, err) in
+            guard err == nil else {
+                completion(nil, err)
+                return
+            }
+            
             if let weatherData = data {
                 do {
                     if let json = try JSONSerialization.jsonObject(with: weatherData, options: JSONSerialization.ReadingOptions.mutableLeaves) as? NSDictionary {
-                        let city = City(with: json)
-                        completion(city, nil)
+                        if let apiError = self.handleError(dict: json)  {
+                            completion(nil, apiError)
+                            return
+                        }
+                        completion(City(with: json), nil)
                     }
-                    
-                } catch {
-                    //TODO: throw error
-                    completion(nil, nil)
-                    print("error in json parsing")
+                } catch let jsonError {
+                    completion(nil, jsonError)
                 }
             }
             
@@ -48,6 +58,7 @@ class ServiceController {
         task.resume()
     }
     
+    //Downloads weather api icons
     func downloadWeatherIcon(with code:String , completion:@escaping(_ image:UIImage?, _ error:Error?) -> Void)  {
         let urlSrtring = "http://openweathermap.org/img/w/\(code)"+".png"
         guard let url = URL(string:urlSrtring) else {
@@ -57,6 +68,11 @@ class ServiceController {
         
         let urlRequest = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.returnCacheDataElseLoad, timeoutInterval: 1.0)
         let task = sharedSession.downloadTask(with: urlRequest) { (location, response, error) in
+            guard error == nil else {
+                completion(nil, error)
+                return
+            }
+            
             if let fileLocation = location, let fileData = try? Data(contentsOf: fileLocation) {
                 if let image = UIImage(data: fileData) {
                     DispatchQueue.main.async {
@@ -68,9 +84,23 @@ class ServiceController {
         task.resume()
     }
     
-    
-    func handleError() {
-        //TODO
+    //TODO Handle Multiple error types if time permits
+
+    //Handles Weather API Error
+    func handleError(dict:NSDictionary) -> Error? {
+        var error:Error? = nil
+        
+        guard let code = dict["cod"] as? String else {
+            return error
+        }
+        if code != "200" {
+            var errorMessage = "Something went wrong please try later"
+            if let message = dict["message"] as? String {
+                errorMessage = message
+            }
+            error = APIError.WeatherAPI(errorMessage)
+        }
+        return error
     }
     
 }

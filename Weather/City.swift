@@ -11,6 +11,7 @@
 import Foundation
 
 class City {
+    
     var id:Int = 0
     var name:String = ""
     var base:String = ""
@@ -21,6 +22,8 @@ class City {
     var weathers:[Weather] = []
     var wind:Wind?
     var sys:System?
+    var error:Error?
+    var isDummy = false
     
     var weatherDescription:String? {
         if let weather = weathers.first {

@@ -17,8 +17,17 @@ class SearchController: UIViewController {
     var recentItems = [City]()
     var searchItem:City?
     
+    var searchInProgress = false {
+        didSet {
+            DispatchQueue.main.async {
+                self.tableView?.reloadSections(IndexSet(integer:0), with: .none)
+            }
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.loadRecentItems()
         // Do any additional setup after loading the view, typically from a nib.
     }
 
@@ -26,34 +35,44 @@ class SearchController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
+    }
+    
+    
+    //Performs Search for then entry
     func performSearch(searchTerm:String) {
         if searchTerm.characters.count == 0 {
             return
         }
+        searchInProgress = true
+        searchItem = City(with: [:])
+        searchItem?.isDummy = true
+        searchItem?.name = searchTerm
+        self.searchInProgress = true
         do {
             try ServiceController.sharedInstance.weather(byCity: searchTerm, completion: { (searchCity, error) in
-                if let err = error {
-                    //TODO
+                self.searchInProgress = false
+                if let err = error  as? APIError {
+                    self.searchItem?.error = err
+                    return
                 }
-                DispatchQueue.main.async { [weak self] in
-                    if let city = searchCity {
-                        self?.searchItem = city
-                        self?.recentItems.append(city)
-                    }
-                    self?.tableView?.reloadData()
+
+                if let city = searchCity {
+                    self.addCity(city: city, update: true)
                 }
             })
         } catch {
             //TODO: Handle error
             print("No Data")
+            self.searchInProgress = false
         }
     }
     
-    func updateTableView() {
-        
-    }
     
+    //Configures the City Cell
     func configure(cell:CityCell, at indexPath:IndexPath) {
         var cityItem:City?
         if let city = searchItem, indexPath.section == 0 {
@@ -61,45 +80,96 @@ class SearchController: UIViewController {
             cell.name?.text = cityItem?.name
             cell.accessoryType = .none
             cell.backgroundColor = UIColor.blue
+            self.updateCurrentSearch(cell: cell)
         } else {
             cityItem = recentItems[indexPath.row]
             cell.accessoryType = .disclosureIndicator
-            cell.name?.text = cityItem?.name
             cell.backgroundColor = UIColor.white
 
         }
+        cell.name?.text = cityItem?.name
         cell.weather?.text = cityItem?.temperature?.degrees
         cell.weatherCondition?.text = cityItem?.weatherDescription
-        if let weather = cityItem?.weathers.first {
+        cell.messageIndicator?.hidesWhenStopped = true
+
+        if let weather = cityItem?.weathers.first, weather.iconId.characters.count > 0 {
             ServiceController.sharedInstance.downloadWeatherIcon(with: weather.iconId, completion: { (image, error) in
                 if error == nil {
                     cell.iconView?.image = image
                 }
             })
         }
-        cell.layoutIfNeeded()
     }
     
-    
+    //Syncs recentsSearchItems to defaults
     func updateRecentItems() {
-        
+        var searchItems = [String]()
+        for each in self.recentItems {
+            searchItems.append(each.name)
+        }
+        UserDefaults.standard.setValue(searchItems, forKey: "RecentSearchItems")
+        UserDefaults.standard.synchronize()
     }
     
-    
+    //Loads recentsSearchItems from userDefaults
     func loadRecentItems() {
-        
+        guard  let recentSearchItems = UserDefaults.standard.array(forKey: "RecentSearchItems") as? [String] else {
+            return
+        }
+        self.recentItems.removeAll()
+        for each in recentSearchItems {
+            do {
+                try ServiceController.sharedInstance.weather(byCity: each, completion: { (searchCity, error) in
+                    if let city = searchCity {
+                        self.addCity(city: city)
+                    }
+                })
+            } catch {
+                print("No Data")
+            }
+        }
     }
     
-    func recentSearchItems() -> [String] {
-        let userDefaults = UserDefaults.standard
-        userDefaults.array(forKey: "RecentSearchItems")
-        return []
+    //Adds new city and syncs to defaults
+    func addCity(city:City, update:Bool = false) {
+        DispatchQueue.main.async { [weak self] in
+            if let filterItems = self?.recentItems.filter({$0.name == city.name}), filterItems.count == 0 {
+                self?.recentItems.insert(city, at: 0)
+            }
+            if update == true {
+                self?.searchItem = city
+                self?.updateRecentItems()
+            }
+            self?.tableView?.reloadData()
+        }
+    }
+    
+    
+    //Based on search progress the current cell gets update
+    func updateCurrentSearch(cell:CityCell) {
+        guard let city = searchItem else {
+            return
+        }
+        
+        if city.isDummy == true {
+            if let text = searchBar?.text, text.characters.count > 0 {
+                if self.searchInProgress == true {
+                    cell.mode = .Loading
+                    cell.messageLabel?.text = "Searching City \(city.name)"
+                } else if let err = self.searchItem?.error as? APIError {
+                    cell.mode = .Error
+                    cell.messageLabel?.text = err.value() + " " + city.name
+                } else {
+                    cell.mode = .Normal
+                }
+            }
+        }
     }
     
 }
 
 
-//TableView
+//MARK: TableView Delegate and Datasoruce
 
 extension SearchController:UITableViewDataSource, UITableViewDelegate {
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -119,8 +189,8 @@ extension SearchController:UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: cityCellReuseIdentifier, for: indexPath) as? CityCell {
             self.configure(cell: cell, at:indexPath)
+            return cell
         }
-        
         return UITableViewCell()
     }
     
@@ -147,7 +217,7 @@ extension SearchController:UITableViewDataSource, UITableViewDelegate {
     }
 }
 
-//SearchBar Delegate
+//MARK:SearchBar Delegate
 
 extension SearchController: UISearchBarDelegate {
     
@@ -164,6 +234,8 @@ extension SearchController: UISearchBarDelegate {
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
+        searchItem = nil
+        self.searchInProgress = false
         if let term = searchBar.text {
             self.performSearch(searchTerm: term)
         }
@@ -177,6 +249,5 @@ extension SearchController: UISearchBarDelegate {
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         searchBar.setShowsCancelButton(false, animated: true)
     }
-    
 }
 
